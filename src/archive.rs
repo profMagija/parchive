@@ -1,10 +1,12 @@
 use crate::{Archivable, Result};
 
+/// Internal read/write methods
 pub trait ArchiveInternal {
     fn write_all(&mut self, value: &[u8]) -> Result<()>;
     fn read_exact(&mut self, value: &mut [u8]) -> Result<()>;
 }
 
+/// A trait representing an Archive.
 pub trait Archive: ArchiveInternal + Sized {
     const IS_READING: bool;
 
@@ -78,5 +80,3 @@ pub trait Archive: ArchiveInternal + Sized {
 pub trait ArchiveSeekable: Archive {
     fn seek(&mut self, from: std::io::SeekFrom) -> Result<u64>;
 }
-
-

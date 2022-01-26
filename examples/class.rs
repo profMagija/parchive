@@ -24,6 +24,12 @@ tagged_enum! {
     }
 }
 
+impl CpInfo {
+    fn is_double(&self) -> bool {
+        matches!(self, Self::Long(_) | Self::Double(_))
+    }
+}
+
 #[derive(Default, Debug)]
 struct ClassFile {
     magic: u32,
@@ -46,11 +52,32 @@ impl Archivable for ClassFile {
         ar.archive(&mut self.minor_version)?;
         ar.archive(&mut self.major_version)?;
 
-        // cp_count is the actual length + 1
-        let mut cp_count = (self.constant_pool.len() + 1) as u16;
-        ar.archive(&mut cp_count)?;
-        // we will ignore the double-wide instances for now
-        ar.archive_vec((cp_count - 1).into(), &mut self.constant_pool)?;
+        if Ar::IS_READING {
+            let mut cp_count: u16 = 0;
+            ar.archive(&mut cp_count)?;
+
+            let mut i = 1;
+            while i < cp_count {
+                let mut v: CpInfo = Default::default();
+                ar.archive(&mut v)?;
+                i += if v.is_double() { 2 } else { 1 };
+                self.constant_pool.push(v);
+            }
+        } else {
+            let mut cp_count: u16 = self
+                .constant_pool
+                .iter()
+                .map(|x| -> u16 {
+                    if x.is_double() {
+                        2
+                    } else {
+                        1
+                    }
+                })
+                .sum();
+            ar.archive(&mut cp_count)?;
+            ar.archive_vec(self.constant_pool.len(), &mut self.constant_pool)?;
+        }
 
         ar.archive(&mut self.access_flags)?;
         ar.archive(&mut self.this_class)?;

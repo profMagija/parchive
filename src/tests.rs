@@ -119,7 +119,7 @@ fn test_write_custom() {
 
     let mut value = Custom {
         field_1: 1,
-        field_2: 0x05040302
+        field_2: 0x05040302,
     };
     ar.archive(&mut value).unwrap();
 
@@ -131,4 +131,27 @@ fn test_write_custom() {
         value
     );
     assert_eq!(vec![1, 2, 3, 4, 5], data);
+}
+
+#[test]
+fn test_read_len_vec() {
+    let data: &[u8] = &[2, 2, 3, 4, 5];
+    let mut ar = ArchiveReader::new(Cursor::new(data));
+
+    let mut value = LenVec::<u8, u16>::default();
+    ar.archive(&mut value).unwrap();
+
+    assert_eq!(vec![0x0302, 0x0504], *value);
+}
+
+#[test]
+fn test_write_len_vec() {
+    let mut data = Vec::<u8>::new();
+    let mut ar = ArchiveWriter::new(Cursor::new(&mut data));
+
+    let mut value = LenVec::<u8, u16>::new(vec![0x0302, 0x0504]);
+    ar.archive(&mut value).unwrap();
+
+    assert_eq!(vec![0x0302, 0x0504], *value);
+    assert_eq!(vec![2, 2, 3, 4, 5], data);
 }

@@ -2,6 +2,7 @@ use crate::result::io_error;
 use crate::{Archivable, Archive, ArchiveInternal, ArchiveSeekable, Result};
 use std::io::{Read, Seek};
 
+/// A reader part of the Archive mechanism.
 pub struct ArchiveReader<R: Read> {
     read: R,
     little_endian: bool,

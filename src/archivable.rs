@@ -1,5 +1,8 @@
+use crate::Error;
 use crate::{Archive, Result};
 
+/// A trait representing an archivable object - one that can be both written to
+/// and read from binary files. Implemented for most primitive types.
 pub trait Archivable: Default {
     fn archive<Ar: Archive>(&mut self, ar: &mut Ar) -> Result<()>;
 }
@@ -65,3 +68,25 @@ tuple_archivable!(T0 v0, T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6);
 tuple_archivable!(T0 v0, T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7);
 tuple_archivable!(T0 v0, T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8);
 tuple_archivable!(T0 v0, T1 v1, T2 v2, T3 v3, T4 v4, T5 v5, T6 v6, T7 v7, T8 v8, T9 v9);
+
+impl Archivable for String {
+    fn archive<Ar: Archive>(&mut self, ar: &mut Ar) -> Result<()> {
+        if Ar::IS_READING {
+            let mut v = vec![];
+            let mut buf = [0 as u8];
+            loop {
+                ar.read_exact(&mut buf)?;
+                if buf[0] == 0 {
+                    *self = String::from_utf8(v).or_else(|e| {
+                        Err(Error::ValueError(format!("invalid string value {}", e)))
+                    })?;
+                    return Ok(());
+                } else {
+                    v.push(buf[0]);
+                }
+            }
+        } else {
+            Ok(())
+        }
+    }
+}

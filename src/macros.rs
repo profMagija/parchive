@@ -14,7 +14,7 @@
 //         $ar.archive(&mut $tgt)?;
 //         ar!(priv $ar => { $($rest)* });
 //     };
-    
+
 //     (priv $ar: expr => { $tgt:stmt ; $($rest:tt)* }) => {
 //         $tgt
 //         ar!(priv $ar => { $($rest)* });
@@ -22,7 +22,7 @@
 
 //     (priv $ar: expr => { ; }) => {};
 //     (priv $ar: expr => { }) => {};
-    
+
 //     ($ar: expr => $($rest:tt)*) => {
 //         || -> $crate::Result<()> {
 //             ar!(priv $ar => $($rest)*);

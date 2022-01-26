@@ -1,7 +1,6 @@
 extern crate parchive;
 
 use parchive::{tagged_enum, Archivable, Archive, ArchiveReader, ArchiveWriter, LenVec, Result};
-use std::io::{Cursor, Write};
 
 tagged_enum! {
     enum CpInfo : u8 {
@@ -47,10 +46,9 @@ impl Archivable for ClassFile {
         ar.archive(&mut self.minor_version)?;
         ar.archive(&mut self.major_version)?;
 
-        // cp_count is the actual length + 1 
+        // cp_count is the actual length + 1
         let mut cp_count = (self.constant_pool.len() + 1) as u16;
         ar.archive(&mut cp_count)?;
-        
         // we will ignore the double-wide instances for now
         ar.archive_vec((cp_count - 1).into(), &mut self.constant_pool)?;
 
@@ -68,10 +66,9 @@ pub fn main() {
 
     let mut cf = ClassFile::default();
     ar.archive(&mut cf).unwrap();
-    println!("{:#?}", cf);
-    
-    cf.major_version = 50; 
-    
+    println!("{:?}", cf);
+
+    cf.major_version = 50;
     let file2 = std::fs::File::create("./test/Object2.class").unwrap();
     let mut ar2 = ArchiveWriter::new(file2);
     ar2.archive(&mut cf).unwrap();

@@ -66,7 +66,7 @@ impl Archivable for ClassFile {
 }
 ```
 
-It seems very repetitive, but this is a small price to pay for having direct access to the 
+It seems very repetitive, but this is a small price to pay for having direct access to the archiving machinery.
 
 ## Why not use `nom`?
 

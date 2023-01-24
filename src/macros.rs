@@ -59,7 +59,7 @@ macro_rules! tagged_enum {
             fn default() -> Self { Self::invalid }
         }
 
-        impl Archivable for CpInfo {
+        impl Archivable for $name {
             fn archive<Ar: Archive>(&mut self, ar: &mut Ar) -> Result<()> {
                 let mut tag = self.tag();
                 ar.archive(&mut tag)?;
